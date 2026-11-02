@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: buz-ebe-relay
+    runtime: python
+    region: frankfurt
+    plan: free
+    numInstances: 1
+    buildCommand: pip install -r requirements.txt
+    startCommand: python start_render.py
+    healthCheckPath: /
+    autoDeployTrigger: off
+    envVars:
+      - key: BUZEBE_MAX_ROOMS
+        value: "50"

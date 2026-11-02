@@ -6,6 +6,8 @@ Fizik, puan ve botlar Host telefonunda çalışır. Aktarıcı yalnızca bağlan
 
 ## WSS hizmeti
 
+Aşağıdaki kendi sunucunuzda çalıştırma komutları Android proje kökünü varsayar; bağımsız sunucu paketinde `relay/` önekini kaldırın. Oluşturulan Render hizmeti yönetilen TLS kullanır; güncel hizmet ayrıntıları aşağıdaki Render bölümündedir.
+
 Python 3.11 veya üstü gerekir. TCP/TLS modu standart kütüphane kullanır. WebSocket modu, RFC 6455 çerçeveleme, maskeleme, parçalama ve akış kontrolü için sabitlenmiş [websockets 17.4](https://pypi.org/project/websockets/17.4/) paketini kullanır:
 
 ```sh
@@ -73,14 +75,18 @@ WebSocket'te her metin çerçevesi tek JSON nesnesidir. TCP/TLS'de her JSON nesn
 
 ## Render üzerinde ücretsiz hizmet
 
-`render.yaml`, tek Python Web Service ve Frankfurt bölgesindeki `free` ücretsiz işlem planı için hazırlanmıştır. Ücretli kaynak tanımlanmaz. Kullanıcı 2 Kasım 2026 tarihinde ücretsiz planı seçmiştir. Bu dosya `relay` klasörü tek başına deponun kökü olduğunda kullanılır. Tam Android projesi depoya yüklenecekse Render Root Directory alanını `relay` yapın.
+2 Kasım 2026 tarihinde Render'da `buz-ebe-sunucu` adlı **Python 3 Web Service**, Frankfurt bölgesinde **Free / 0 USD** planıyla oluşturuldu. Kaynak, kullanıcının onayıyla herkese açık yapılan [erkanemin772-code/buz-ebe-sunucu](https://github.com/erkanemin772-code/buz-ebe-sunucu) deposunun `main` dalıdır; depodaki 9 bağımsız sunucu dosyası doğrudan bağlandı. İlk dağıtım (`1322a74`) 41 saniyede tamamlandı; Render durumu **Live**, HTTP sağlık yanıtı **200** olarak doğrulandı. Gerçek Android GameClient ile sabit WSS adresinde 15 uçtan uca kontrol geçti; test odalarının temizliği bağımsız oda listesiyle doğrulandı.
 
+`render.yaml`, aynı ücretsiz tek örnekli düzeni tanımlar; ücretli kaynak tanımlanmaz. Bu dosya `relay` klasörü tek başına deponun kökü olduğunda kullanılır. Tam Android projesi depoya yüklenecekse Render Root Directory alanını `relay` yapın.
+
+- HTTPS / sağlık adresi: [buz-ebe-sunucu.onrender.com](https://buz-ebe-sunucu.onrender.com/)
+- Android WSS adresi: `wss://buz-ebe-sunucu.onrender.com/ws`
 - Build: `pip install -r requirements.txt`
 - Start: `python start_render.py`
 - Health check: `/`
-- Tek süreç/tek örnek kullanın; oda listesi bellektedir. Otomatik dağıtım kapalıdır.
+- Tek süreç/tek örnek kullanılır; oda listesi bellektedir. `BUZEBE_MAX_ROOMS=50`, otomatik dağıtım kapalıdır.
 - Public adres Render tarafından HTTPS/WSS ve güvenilir TLS ile sağlanır. `--behind-proxy` yalnızca Render benzeri yönetilen TLS vekilinin izole HTTP arka bağlantısında kullanılmalıdır. Bunu doğrudan internete düz HTTP sunmak için kullanmayın.
-- Kalıcı hizmet adresi belli olduktan sonra uygulama `-PBUZEBE_RELAY_URL=wss://GERCEK-HIZMET-ADI.onrender.com/ws` ile yeniden derlenir. Bu yer tutucu adres gerçek bir servis değildir.
+- Android kaynak projesinde `BUZEBE_RELAY_URL=wss://buz-ebe-sunucu.onrender.com/ws` ayarı debug ve release için kaydedildi. 0.3.2 deneme APK ve imzalı AAB bu adresle yeniden derlendi.
 
 Ücretsiz hizmet 15 dakika HTTP veya WebSocket mesajı almayınca uyur; yeni bağlantıda uyanması yaklaşık bir dakika sürebilir. Güncel Android istemcisi ilk bağlantıda geçici hatalar için en çok 90 saniye bekler; kullanıcı menüye çıkınca denemeleri durdurur. Render hesabında ödeme yöntemi yoksa aylık dış trafik kotası bitince hizmet ay sonuna kadar durdurulabilir.
 
@@ -90,4 +96,4 @@ Plan: https://render.com/pricing
 WebSocket: https://render.com/docs/websocket
 Trafik: https://render.com/docs/outbound-bandwidth
 
-Bu dosyaların hazırlanması Render'da hizmet oluşturulduğu anlamına gelmez. Render hesabına giriş yapılmıştır. Kaynak deposu bağlantısı ve hizmet oluşturma henüz tamamlanmamıştır. Yeniden başlatma veya dağıtım mevcut odaları kapatır; 50 oda sınırı performans garantisi değildir.
+Render hizmetinin ilk dağıtımı tamamlandı ve HTTP sağlık yanıtı 200 olarak doğrulandı. WSS üzerinden gerçek Android GameClient ile 15 uçtan uca kontrol geçti. Bu kontroller tek emülatörde ayrı istemciler ve yapay ses paketleri kullandı; iki fiziksel telefonda ses kalitesi testi değildir. Test odalarının temizliği daha sonraki bağımsız oda listesiyle doğrulandı; ilk 20 saniyelik gözlem sonucu zamanında doğrulayamamıştı. Yeniden başlatma veya dağıtım mevcut odaları kapatır; 50 oda sınırı performans garantisi değildir.
